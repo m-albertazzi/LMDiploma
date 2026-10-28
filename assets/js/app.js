@@ -157,6 +157,7 @@
   var timetable = $('#timetable'), emptyMsg = $('#empty'), count = $('#result-count');
   function renderList() {
     var shown = courses.filter(passes);
+    updatePlanBar();
     count.textContent = 'Showing ' + shown.length + ' of ' + courses.length + ' courses';
     emptyMsg.hidden = shown.length > 0;
     var months = [], cur = null;
@@ -185,18 +186,14 @@
       }).join('') + '</ol></li>';
     }).join('');
   }
+  function updatePlanBar() {
+    var bar = $('#planbar'); if (!bar) { return; }
+    bar.hidden = plan.length === 0;
+    $('#planbar-text').textContent = plan.length ? 'In your plan: the Academy and ' + plan.length + ' of ' + MAX + ' electives.' : '';
+  }
   timetable.addEventListener('click', function (e) {
     var b = e.target.closest('.row'); if (b) { openDrawer(b.dataset.id, b); }
   });
-
-  /* ---------- cluster note ---------- */
-  (function () {
-    var el = $('#clusters-note');
-    var un = D.unscheduled.map(function (u) { return esc(u.title); });
-    el.innerHTML = '<p>Thematic areas follow the Diploma presentation. The Academy is not tied to one area, so it stays visible when you filter by theme. ' +
-      (un.length ? 'Two further courses sit in the thematic areas but have no 2027 edition in the calendar: ' + un.join(' and ') + '. Write to <a class="textlink" href="mailto:' + D.programme.email + '">' + D.programme.email + '</a> to ask about their availability. ' : '') +
-      'The complete list is in the <a class="textlink" href="' + esc(D.programme.catalogueUrl) + '" rel="noopener">ITCILO labour migration catalogue</a>.</p>';
-  })();
 
   /* ---------- drawer ---------- */
   var drawer = $('#drawer'), body = $('#drawer-body'), lastTrigger = null, lastId = null;
@@ -321,19 +318,134 @@
     var again = document.getElementById('pk-' + id); if (again) { again.focus(); }
   });
   $('#planner-clear').addEventListener('click', function () { plan = []; savePlan(); renderList(); renderPlanner(); $('#planner-list input').focus(); });
-  $('#planner-print').addEventListener('click', function () {
-    var rows = [academy].concat(plan.map(function (id) { return byId[id]; })).sort(function (a, b) { return a.start < b.start ? -1 : 1; });
+  /* ---------- memo (print and PDF) ---------- */
+  function memoRows() {
+    return [academy].concat(plan.map(function (id) { return byId[id]; })).sort(function (a, b) { return a.start < b.start ? -1 : 1; });
+  }
+  function printMemo() {
+    var rows = memoRows();
     var sheet = $('#print-sheet');
     sheet.innerHTML = '<img class="logo" src="assets/img/itc-logo-700.png" alt="">' +
       '<h1>My Diploma plan</h1><p>Diploma for Labour Migration Experts and Practitioners. Prepared on ' + esc(fLong.format(new Date())) + '.</p>' +
       '<table><thead><tr><th>Course</th><th>Status</th><th>Dates (2027)</th><th>Format</th></tr></thead><tbody>' +
-      rows.map(function (c) { return '<tr><td>' + esc(c.title) + '<br><span class="small">' + esc(c.officialUrl) + '</span></td><td>' + (c.mandatory ? 'Mandatory' : 'Elective') + '</td><td>' + esc(range(c.start, c.end)) + (c.f2f ? '<br>Face-to-face: ' + esc(range(c.f2f.start, c.f2f.end)) : '') + '</td><td>' + esc(c.format) + '</td></tr>'; }).join('') +
+      rows.map(function (c) { return '<tr><td>' + esc(c.title) + '<br><span class="small">' + esc(c.officialUrl) + '</span></td><td>' + (c.mandatory ? 'Mandatory' : 'Elective') + '</td><td>' + esc(range(c.start, c.end)) + (c.f2f ? '<br>Face-to-face: ' + esc(range(c.f2f.start, c.f2f.end)) : '') + (c.deadline ? '<br>Apply by: ' + esc(fLong.format(d(c.deadline))) : '') + '</td><td>' + esc(c.format) + '</td></tr>'; }).join('') +
       '</tbody></table>' +
       '<p>Elective courses chosen: ' + plan.length + ' of ' + MAX + '. The Diploma also requires an individual capstone project and completion of all requirements within five years.</p>' +
-      '<p class="small"><strong>Planning aid only.</strong> This summary is not a registration, an admission, or a confirmation that a Diploma will be awarded. Confirm dates and deadlines on each official course page and register for each course separately. Questions: ' + D.programme.email + '.</p>';
+      '<p class="small"><strong>Planning aid only.</strong> This memo is not a registration, an admission, or a confirmation that a Diploma will be awarded. Confirm dates and deadlines on each official course page and register for each course separately. Questions: ' + D.programme.email + '.</p>';
     document.body.classList.add('print-plan');
     window.print();
-  });
+  }
+
+  /* A small PDF writer (A4, Helvetica, optional JPEG logo). No libraries. */
+  function pdfText(s) { return String(s).replace(/[–—]/g, '-').replace(/[‘’]/g, "'").replace(/[“”]/g, '"').replace(/[^\x20-\x7E -ÿ]/g, '?'); }
+  function pdfEsc(s) { return pdfText(s).replace(/\\/g, '\\\\').replace(/\(/g, '\\(').replace(/\)/g, '\\)'); }
+  function bytes(s) { var a = new Uint8Array(s.length); for (var i = 0; i < s.length; i++) { a[i] = s.charCodeAt(i) & 255; } return a; }
+  function loadLogo() {
+    return new Promise(function (res) {
+      var img = new Image();
+      img.onload = function () {
+        fetch('assets/img/itc-logo-memo.jpg').then(function (r) { return r.arrayBuffer(); }).then(function (b) { res({ data: new Uint8Array(b), w: img.naturalWidth, h: img.naturalHeight }); }).catch(function () { res(null); });
+      };
+      img.onerror = function () { res(null); };
+      img.src = 'assets/img/itc-logo-memo.jpg';
+    });
+  }
+  function buildPdf(logo) {
+    var W = 595.28, H = 841.89, M = 54, LW = W - 2 * M;
+    var cv = document.createElement('canvas').getContext('2d');
+    function width(t, size, bold) { cv.font = (bold ? 'bold ' : '') + size + 'px Helvetica, Arial, sans-serif'; return cv.measureText(pdfText(t)).width; }
+    function wrap(t, size, bold, maxW) {
+      var words = pdfText(t).split(/\s+/), lines = [], cur = '';
+      words.forEach(function (w) {
+        var test = cur ? cur + ' ' + w : w;
+        if (width(test, size, bold) <= maxW) { cur = test; return; }
+        if (cur) { lines.push(cur); cur = ''; }
+        while (width(w, size, bold) > maxW) { var k = w.length; while (k > 1 && width(w.slice(0, k), size, bold) > maxW) { k--; } lines.push(w.slice(0, k)); w = w.slice(k); }
+        cur = w;
+      });
+      if (cur) { lines.push(cur); }
+      return lines;
+    }
+    var pages = [], ops = [], y;
+    function newPage() { if (ops.length) { pages.push(ops.join('\n')); } ops = []; y = H - M; }
+    function ensure(h) { if (y - h < M) { newPage(); } }
+    function text(t, size, o) {
+      o = o || {}; var x = o.x || M, maxW = o.w || LW, lead = size * 1.4;
+      wrap(t, size, o.bold, maxW).forEach(function (l) {
+        ensure(lead); y -= lead;
+        var col = o.color || '0.169 0.165 0.161';
+        ops.push('BT /' + (o.bold ? 'F2' : 'F1') + ' ' + size + ' Tf ' + col + ' rg ' + x.toFixed(2) + ' ' + y.toFixed(2) + ' Td (' + pdfEsc(l) + ') Tj ET');
+      });
+    }
+    function gap(h) { y -= h; }
+    function rule(col) { ensure(8); ops.push(col + ' RG 1 w ' + M + ' ' + (y - 4).toFixed(2) + ' m ' + (W - M) + ' ' + (y - 4).toFixed(2) + ' l S'); y -= 10; }
+    var BLUE = '0.157 0.294 0.588';
+    newPage();
+    if (logo) { var lh = 40, lw = lh * logo.w / logo.h; ops.push('q ' + lw.toFixed(2) + ' 0 0 ' + lh + ' ' + (W - M - lw).toFixed(2) + ' ' + (H - M - lh + 6).toFixed(2) + ' cm /Im1 Do Q'); }
+    y = H - M - 4;
+    text('My Diploma plan', 26, { bold: true, color: BLUE, w: LW - 150 });
+    text('Diploma for Labour Migration Experts and Practitioners', 12, { color: BLUE, w: LW - 150 });
+    text('Prepared on ' + fLong.format(new Date()), 10, { color: '0.357 0.357 0.357' });
+    gap(8); y = Math.min(y, H - M - 56); rule(BLUE);
+    memoRows().forEach(function (c) {
+      ensure(90);
+      gap(6);
+      text(c.title, 13, { bold: true, color: BLUE });
+      text((c.mandatory ? 'Mandatory for the Diploma' : 'Elective') + ', ' + c.format, 10.5);
+      text('Dates: ' + range(c.start, c.end), 10.5);
+      if (c.f2f) { text('Face-to-face: ' + range(c.f2f.start, c.f2f.end) + ', ' + c.f2f.place, 10.5); }
+      text('Language: ' + langText(c), 10.5);
+      text('Application deadline: ' + (c.deadline ? fLong.format(d(c.deadline)) : 'not yet published on the course page'), 10.5);
+      text('Course page: ' + c.officialUrl, 9.5, { color: '0.357 0.357 0.357' });
+      if (c.applyUrl) { text('Apply: ' + c.applyUrl, 9.5, { color: '0.357 0.357 0.357' }); }
+      gap(4); rule('0.8 0.8 0.8');
+    });
+    gap(6);
+    text('Electives chosen: ' + plan.length + ' of ' + MAX + '. The Diploma also requires an individual capstone project, and all requirements must be completed within five years.', 10.5);
+    gap(6);
+    text('Planning aid only. This memo is not a registration, an admission, or a confirmation that a Diploma will be awarded. Confirm dates and deadlines on each official course page and register for each course separately.', 9.5, { color: '0.357 0.357 0.357' });
+    text('Questions: ' + D.programme.email + '   ' + D.programme.website, 9.5, { color: '0.357 0.357 0.357' });
+    pages.push(ops.join('\n'));
+
+    // assemble objects
+    var objs = [], imgObj = logo ? 5 : 0, first = logo ? 6 : 5;
+    objs[1] = [bytes('<< /Type /Catalog /Pages 2 0 R >>')];
+    var kids = pages.map(function (_, i) { return (first + i * 2) + ' 0 R'; }).join(' ');
+    objs[2] = [bytes('<< /Type /Pages /Kids [' + kids + '] /Count ' + pages.length + ' >>')];
+    objs[3] = [bytes('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>')];
+    objs[4] = [bytes('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>')];
+    if (logo) {
+      objs[5] = [bytes('<< /Type /XObject /Subtype /Image /Width ' + logo.w + ' /Height ' + logo.h + ' /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ' + logo.data.length + ' >>\nstream\n'), logo.data, bytes('\nendstream')];
+    }
+    pages.forEach(function (content, i) {
+      var pn = first + i * 2, cn = pn + 1;
+      objs[pn] = [bytes('<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ' + W + ' ' + H + '] /Resources << /Font << /F1 3 0 R /F2 4 0 R >>' + (logo ? ' /XObject << /Im1 5 0 R >>' : '') + ' >> /Contents ' + cn + ' 0 R >>')];
+      var cb = bytes(content);
+      objs[cn] = [bytes('<< /Length ' + cb.length + ' >>\nstream\n'), cb, bytes('\nendstream')];
+    });
+    var parts = [bytes('%PDF-1.4\n')], offset = parts[0].length, offsets = [];
+    for (var n = 1; n < objs.length; n++) {
+      offsets[n] = offset;
+      var chunk = [bytes(n + ' 0 obj\n')].concat(objs[n], [bytes('\nendobj\n')]);
+      chunk.forEach(function (c) { parts.push(c); offset += c.length; });
+    }
+    var xref = 'xref\n0 ' + objs.length + '\n0000000000 65535 f \n';
+    for (var k = 1; k < objs.length; k++) { xref += ('0000000000' + offsets[k]).slice(-10) + ' 00000 n \n'; }
+    parts.push(bytes(xref + 'trailer\n<< /Size ' + objs.length + ' /Root 1 0 R >>\nstartxref\n' + offset + '\n%%EOF'));
+    return new Blob(parts, { type: 'application/pdf' });
+  }
+  function downloadMemo() {
+    loadLogo().then(function (logo) {
+      var blob = buildPdf(logo), a = document.createElement('a');
+      a.href = URL.createObjectURL(blob); a.download = 'my-diploma-plan.pdf';
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(function () { URL.revokeObjectURL(a.href); }, 4000);
+    });
+  }
+  $('#planner-print').addEventListener('click', printMemo);
+  $('#bar-print').addEventListener('click', printMemo);
+  $('#planner-download').addEventListener('click', downloadMemo);
+  $('#bar-download').addEventListener('click', downloadMemo);
   window.addEventListener('afterprint', function () { document.body.classList.remove('print-plan'); });
 
   /* ---------- review notes (preview only) ---------- */

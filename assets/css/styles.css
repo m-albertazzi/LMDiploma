@@ -141,27 +141,11 @@ code { font-size: .9em; background: rgba(0,0,0,.06); padding: 0 .3em; }
 .art-frame { position: relative; isolation: isolate; width: 100%; max-width: 640px; margin-inline: auto; }
 .art-frame::before { content: ""; position: absolute; inset: 7% -4% -4% 7%; background: var(--sand); z-index: -1; }   /* offset sand block, as on the presentation slide */
 .art-frame picture, .art-frame img { display: block; width: 100%; aspect-ratio: 1 / 1; height: auto; }
-.hero-art figcaption { max-width: 640px; margin: 36px auto 0; font-size: .95rem; color: var(--grey); }
 
-.pin { position: absolute; left: var(--x); top: var(--y); width: 44px; height: 44px; margin: -22px 0 0 -22px; display: grid; place-items: center; text-decoration: none; border-radius: 50%; }
-.pin::before { content: ""; width: 22px; height: 22px; border-radius: 50%; background: #fff; border: 3px solid var(--blue); box-shadow: 0 2px 8px rgba(0,0,0,.28); transition: transform .18s, background-color .18s; }
-.pin::after { content: ""; position: absolute; width: 8px; height: 8px; border-radius: 50%; background: var(--cyan); }
-.pin:hover::before, .pin:focus-visible::before { transform: scale(1.25); background: var(--cream); }
-.pin:focus-visible { outline: 3px solid #fff; outline-offset: 0; box-shadow: 0 0 0 6px var(--blue); }
-.pin-label { position: absolute; left: 50%; bottom: calc(100% - 4px); transform: translate(-50%, 6px); background: var(--blue); color: #fff; font-weight: 600; font-size: .95rem; line-height: 1.2; padding: .4em .8em; border-radius: 999px; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity .15s, transform .15s; }
-.pin:hover .pin-label, .pin:focus-visible .pin-label { opacity: 1; transform: translate(-50%, 0); }
-.pin-left .pin-label { left: auto; right: 50%; transform: translate(10px, 6px); }
-.pin-left:hover .pin-label, .pin-left:focus-visible .pin-label { transform: translate(10px, 0); }
 
-/* The one orchestrated moment: the picture settles in, then the markers appear one by one. */
+/* The one orchestrated moment: the picture settles in. */
 @keyframes settle { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
-@keyframes pinIn { from { opacity: 0; transform: scale(.4); } to { opacity: 1; transform: none; } }
-@keyframes ring { 0% { box-shadow: 0 0 0 0 rgba(0,163,224,.65); } 100% { box-shadow: 0 0 0 16px rgba(0,163,224,0); } }
 .js .art-frame { animation: settle .7s cubic-bezier(.2,.7,.2,1) both; }
-.js .pin { animation: pinIn .4s cubic-bezier(.2,.7,.2,1) both; }
-.js .pin:nth-of-type(1) { animation-delay: .8s; } .js .pin:nth-of-type(2) { animation-delay: .95s; }
-.js .pin:nth-of-type(3) { animation-delay: 1.1s; } .js .pin:nth-of-type(4) { animation-delay: 1.25s; }
-.js .pin::before { animation: ring 1.6s ease-out 1.6s 2; }
 
 .tear { position: absolute; left: 0; right: 0; bottom: -1px; height: 26px; background: var(--paper); -webkit-mask: url("../img/tear.svg") repeat-x bottom / 1200px 26px; mask: url("../img/tear.svg") repeat-x bottom / 1200px 26px; }
 
@@ -308,7 +292,10 @@ code { font-size: .9em; background: rgba(0,0,0,.06); padding: 0 .3em; }
 }
 .empty { padding: 28px; background: var(--mist); border-left: 6px solid var(--blue); max-width: 64ch; }
 .noscript { background: #FFF1C9; padding: 14px 18px; }
-.clusters-note { margin-top: 36px; max-width: 70ch; color: var(--grey); font-size: 1rem; }
+.planbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 20px; background: #FFF3D6; border-left: 6px solid var(--ochre); padding: 14px 18px; margin: 18px 0 8px; }
+.planbar p { margin: 0; font-weight: 600; }
+.planbar-actions { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center; }
+.planbar .btn { padding: .6em 1.2em; font-size: 1rem; }
 
 /* ---------- Drawer ---------- */
 .drawer {

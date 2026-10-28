@@ -1,6 +1,6 @@
 # Diploma for Labour Migration Experts and Practitioners: landing page
 
-A static, dependency-free landing page for the ITCILO Diploma for Labour Migration Experts and Practitioners. It explains the Diploma, lists the eligible 2027 courses with a detail drawer, and includes a planner for the Academy plus three electives.
+A static, dependency-free landing page for the ITCILO Diploma for Labour Migration Experts and Practitioners. It explains the Diploma, lists the eligible 2027 courses with a detail drawer, and includes a planner for the Academy plus three electives. The plan can be printed or downloaded as a one-page PDF memo (generated in the browser; no libraries).
 
 - No build step, no frameworks, no external requests (fonts and images are self-hosted).
 - All links are relative, so it works at `https://<user>.github.io/LMDiploma/` and from a local folder.
@@ -43,7 +43,7 @@ To add a course for a new year, add an entry to `courses` (the page sorts by sta
 | Hero illustration | `assets/img/hero-{640,960,1280,1800}.webp`, `hero-1280.jpg` | Square. Keep the same file names, or update `index.html` (`srcset` and preload). |
 | Illustration strips between sections | `assets/img/strip-*-{900,1800}.webp` | Slices of the same illustration (3:1). |
 | Course images | `assets/img/courses/<id>.webp` | Set the path in the data file. Aim for 800 px wide or more. The digital transformation course has no image yet; add one and set `image` and `imageAlt`. |
-| Logos | `assets/img/itc-logo*.png`, `ilo-logo.png`, `diploma-emblem.png` | Official files. Do not edit, recolour or redraw. |
+| Logos | `assets/img/itc-logo*.png`, `itc-logo-memo.jpg` (used in the PDF memo), `ilo-logo.png`, `diploma-emblem.png` | Official files. Do not edit, recolour or redraw. |
 | Flyer | `assets/docs/LM-Diploma-flyer.pdf` | Keep the file name, or change `programme.flyer` in the data file and the link in `index.html`. |
 | Social sharing image | `assets/img/og-image.jpg` | 1200 x 630. |
 | Image credit | `credits.display` in the data file | Shown in the footer; currently "Images: Samuele Omati". |

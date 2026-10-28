@@ -47,12 +47,6 @@ window.LMD_DATA = {
     { id: "crisis",      label: "Crisis",      color: "#DE9B8A", ink: "#7A2E1C", blurb: "Displacement, climate change and protection in times of crisis." }
   ],
 
-  // Courses named in the clusters [DECK] that have no 2027 edition in the supplied calendar.
-  unscheduled: [
-    { title: "Protecting the rights of migrants in the labour force", clusters: ["protection"] },
-    { title: "Reintegration of return migrants and former refugees", clusters: ["development"] }
-  ],
-
   courses: [
     {
       id: "skills",
@@ -445,7 +439,6 @@ window.LMD_DATA = {
   globalReview: [
     { title: "Diploma languages", note: "The official Diploma page says the Diploma is available in English, French and Spanish. The presentation says all courses are offered in English and the Academy in English and French, with other languages on request. The site follows the presentation and does not imply every course is available in every language." },
     { title: "Eligible-course list on the official Diploma page", note: "That page lists Establishing Fair Recruitment Processes (2027), Extending Social Protection and Climate (both with 2026 dates) and the Digital Governance Academy (7 to 11 December 2026). The Digital Governance Academy is not in the supplied calendar or clusters, so it is not shown. Confirm whether it qualifies, and whether the list is meant to be a general related-courses list." },
-    { title: "Courses with no 2027 edition", note: "Protecting the rights of migrants in the labour force, and Reintegration of return migrants and former refugees, appear in the presentation's clusters but not in the 2027 calendar. They are mentioned in a note only." },
     { title: "Application links", note: "Application links are copied from the 'Apply now' buttons on the official course pages. They could not be opened from the build environment, so they are not live-tested. Measuring and analysing, and the climate course, have no link yet." },
     { title: "Course images", note: "Official cover images could not be downloaded from the build environment. Course images are the illustrations from the Diploma presentation (some are small). The digital transformation course has a designed title treatment because no illustration was supplied." },
     { title: "Capstone and five-year rules", note: "The supplied material does not say how the capstone is submitted or assessed, or from what date the five years run. The page says so and points to the team." },

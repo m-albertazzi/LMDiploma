@@ -98,12 +98,7 @@
           <img src="assets/img/hero-1280.jpg" width="1280" height="1280" fetchpriority="high" decoding="async"
                alt="Illustration of a lively city street where people from many backgrounds work, learn and meet. Colleagues assemble a giant jigsaw puzzle and play tug-of-war on a rooftop, people sit at café tables, farm workers pick crops in a field, crowds cross a busy street, and a group holds signs near a tree and a bus.">
         </picture>
-        <a class="pin" style="--x:68%;--y:23%" href="#overview"><span class="pin-label">Overview</span></a>
-        <a class="pin" style="--x:27%;--y:10%" href="#pathway"><span class="pin-label">Your Diploma pathway</span></a>
-        <a class="pin" style="--x:57%;--y:42%" href="#courses"><span class="pin-label">Eligible courses</span></a>
-        <a class="pin pin-left" style="--x:86%;--y:81%" href="#practical"><span class="pin-label">Practical information</span></a>
       </div>
-      <figcaption>The markers on the illustration link to the sections of this page.</figcaption>
     </figure>
   </div>
   <div class="tear" aria-hidden="true"></div>
@@ -271,11 +266,19 @@
       </div>
     </div>
 
+    <div class="planbar" id="planbar" hidden>
+      <p id="planbar-text" role="status" aria-live="polite"></p>
+      <div class="planbar-actions">
+        <button type="button" class="btn btn-primary" id="bar-download">Download memo (PDF)</button>
+        <button type="button" class="btn btn-secondary" id="bar-print">Print memo</button>
+        <a class="textlink" href="#planner">Open the planner</a>
+      </div>
+    </div>
+
     <ol class="timetable" id="timetable" aria-label="2027 courses in date order"></ol>
     <p class="empty" id="empty" hidden>No course matches these filters. Reset the filters to see all 2027 courses.</p>
 
-    <div class="clusters-note" id="clusters-note"></div>
-  </div>
+      </div>
 </section>
 
 <!-- PLANNER -->
@@ -305,8 +308,9 @@
         <ol class="plan-list" id="planner-plan"></ol>
         <p class="plan-warn" id="planner-warn" hidden></p>
         <div class="plan-actions">
-          <button type="button" class="btn btn-primary" id="planner-print">Print summary</button>
-          <button type="button" class="btn btn-secondary" id="planner-clear">Clear selection</button>
+          <button type="button" class="btn btn-primary" id="planner-download">Download memo (PDF)</button>
+          <button type="button" class="btn btn-secondary" id="planner-print">Print memo</button>
+          <button type="button" class="btn-text" id="planner-clear">Clear selection</button>
         </div>
         <p class="disclaimer">This is a planning aid only. It is not a registration, an admission, or a confirmation that a Diploma will be awarded. Register for each course on its own page. The planner shows 2027 editions; you can also take courses in other years within your five-year period.</p>
       </aside>
