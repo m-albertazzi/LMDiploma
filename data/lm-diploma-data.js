@@ -13,6 +13,9 @@
  *   [DECK] supplied Diploma presentation / flyer
  *   [WEB]  official ITCILO course page, checked on `meta.lastChecked`
  *
+ * `hotspot` places the course ring on the illustration in "Eligible courses": x and y are the
+ * centre and d the diameter, all as a percentage of the picture width. Omit it for no ring.
+ *
  * `review` lists items that need a human decision. The page shows them only while
  * `meta.showReviewFlags` is true (preview builds). Set it to false before launch.
  */
@@ -50,6 +53,7 @@ window.LMD_DATA = {
   courses: [
     {
       id: "skills",
+      hotspot: { x: 7.5, y: 68.0, d: 5.0 },
       title: "Skills dimensions of labour migration and mobility",
       mandatory: false,
       start: "2027-03-15", end: "2027-04-23",
@@ -94,6 +98,7 @@ window.LMD_DATA = {
 
     {
       id: "bilateral",
+      hotspot: { x: 31.0, y: 31.2, d: 7.7 },
       title: "Developing, Negotiating and Implementing Bilateral Labour Migration Agreements",
       mandatory: false,
       start: "2027-04-26", end: "2027-05-28",
@@ -137,6 +142,7 @@ window.LMD_DATA = {
 
     {
       id: "access",
+      hotspot: { x: 95.0, y: 58.6, d: 5.3 },
       title: "Access to decent work for refugees and other forcibly displaced persons",
       mandatory: false,
       start: "2027-05-10", end: "2027-06-18",
@@ -176,6 +182,7 @@ window.LMD_DATA = {
 
     {
       id: "digital",
+      hotspot: { x: 25.3, y: 48.0, d: 4.3 }, // placeholder: phone posters in the shop window; move when the cover detail is chosen
       title: "Digital transformation for inclusive labour migration governance",
       mandatory: false,
       start: "2027-06-21", end: "2027-06-25",
@@ -215,12 +222,14 @@ window.LMD_DATA = {
       ],
       review: [
         { field: "Format", note: "The calendar and the official page both say face-to-face, but the page also describes a 15-hour online phase before the Turin week, and the 2026 edition ran online from 1 to 19 June before 22 to 26 June in Turin. Confirm whether the 2027 edition has online dates." },
+        { field: "Hotspot position", note: "The ring for this course sits on the phone posters in the shop window as a suggestion, because the course has no cover illustration yet. Change hotspot.x, y and d in the data file when the cover detail is chosen." },
         { field: "Cover image", note: "The deck does not include this course's cover illustration, so the page uses a designed title treatment. Supply the image file to replace it." }
       ]
     },
 
     {
       id: "academy",
+      hotspot: { x: 58.7, y: 50.7, d: 16.0 },
       title: "Academy on Labour Migration",
       mandatory: true,
       start: "2027-06-28", end: "2027-07-30",
@@ -263,6 +272,7 @@ window.LMD_DATA = {
 
     {
       id: "fair-recruitment",
+      hotspot: { x: 50.0, y: 24.0, d: 4.7 },
       title: "Establishing Fair Recruitment Processes",
       mandatory: false,
       start: "2027-09-20", end: "2027-10-22",
@@ -306,6 +316,7 @@ window.LMD_DATA = {
 
     {
       id: "measuring",
+      hotspot: { x: 36.8, y: 44.7, d: 6.3 },
       title: "Measuring and analysing labour migration",
       mandatory: false,
       start: "2027-10-11", end: "2027-11-19",
@@ -349,6 +360,7 @@ window.LMD_DATA = {
 
     {
       id: "social-protection",
+      hotspot: { x: 61.7, y: 72.3, d: 5.7 },
       title: "Extending Social Protection to Migrant Workers, Refugees and their Families",
       mandatory: false,
       start: "2027-10-18", end: "2027-11-12",
@@ -394,6 +406,7 @@ window.LMD_DATA = {
 
     {
       id: "climate",
+      hotspot: { x: 47.7, y: 42.9, d: 5.0 },
       title: "Exploring the labour dimensions of climate change and human mobility",
       mandatory: false,
       start: "2027-10-25", end: "2027-12-03",

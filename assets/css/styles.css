@@ -423,3 +423,34 @@ code { font-size: .9em; background: rgba(0,0,0,.06); padding: 0 .3em; }
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
+
+/* ---------- Illustration map (course hotspots) ---------- */
+.map { display: grid; gap: 28px; align-items: center; margin: 0 0 40px; }
+.map-art { position: relative; max-width: 640px; width: 100%; margin-inline: auto; }
+.map-art picture, .map-art img { display: block; width: 100%; aspect-ratio: 1 / 1; height: auto; }
+.map-pins { position: absolute; inset: 0; }
+.hotspot {
+  position: absolute; left: var(--x); top: var(--y); width: var(--d); aspect-ratio: 1 / 1; min-width: 44px; transform: translate(-50%, -50%);
+  border-radius: 50%; border: 3px solid #fff; background: rgba(255,255,255,0); cursor: pointer; padding: 0;
+  box-shadow: 0 0 0 2px rgba(27,53,112,.85), inset 0 0 0 2px rgba(27,53,112,.55);
+  transition: background-color .18s, transform .18s, box-shadow .18s;
+}
+.hotspot.is-academy { border-color: var(--blue); box-shadow: 0 0 0 3px #fff, inset 0 0 0 2px #fff; }
+.hotspot:hover, .hotspot:focus-visible { background: rgba(255,255,255,.28); transform: translate(-50%, -50%) scale(1.06); z-index: 3; }
+.hotspot:focus-visible { outline: 3px solid var(--cyan); outline-offset: 4px; }
+.hotspot .tip {
+  position: absolute; left: 50%; bottom: calc(100% + 10px); transform: translateX(-50%); width: max-content; max-width: 250px; text-align: left;
+  background: var(--blue); color: #fff; padding: .45em .8em; border-radius: 6px; font-size: .95rem; line-height: 1.3; font-weight: 600;
+  opacity: 0; pointer-events: none; transition: opacity .15s; z-index: 4;
+}
+.hotspot .tip small { display: block; font-weight: 400; opacity: .9; }
+.hotspot:hover .tip, .hotspot:focus-visible .tip { opacity: 1; }
+.hotspot.tip-below .tip { bottom: auto; top: calc(100% + 10px); }
+.hotspot.tip-left .tip { left: 0; transform: none; }
+.hotspot.tip-right .tip { left: auto; right: 0; transform: none; }
+.map-text h3 { margin-top: 0; }
+.map-key { display: flex; align-items: center; gap: 10px; margin: 0 0 .5em; color: var(--grey); }
+.key-ring { width: 22px; height: 22px; border-radius: 50%; border: 3px solid #fff; box-shadow: 0 0 0 2px rgba(27,53,112,.85); background: var(--sand); display: inline-block; flex: none; }
+.key-academy { border-color: var(--blue); box-shadow: 0 0 0 2px #fff; }
+@media (min-width: 1000px) { .map { grid-template-columns: minmax(0, 640px) minmax(0, 1fr); gap: 56px; } .map-art { margin-inline: 0; } }
+@media (prefers-reduced-motion: reduce) { .hotspot:hover, .hotspot:focus-visible { transform: translate(-50%, -50%); } }

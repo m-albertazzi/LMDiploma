@@ -251,6 +251,22 @@
 
     <noscript><p class="noscript">The course explorer needs JavaScript. You can see all courses in the <a href="https://www.itcilo.org/courses?field_topics%5B167%5D=167">ITCILO catalogue</a> or write to <a href="mailto:migration@itcilo.org">migration@itcilo.org</a>.</p></noscript>
 
+    <div class="map" id="map" hidden>
+      <div class="map-art">
+        <picture>
+          <source type="image/webp" srcset="assets/img/hero-640.webp 640w, assets/img/hero-960.webp 960w, assets/img/hero-1280.webp 1280w" sizes="(min-width: 1000px) 640px, 92vw">
+          <img src="assets/img/hero-960.jpg" width="960" height="960" loading="lazy" decoding="async" alt="The cover illustration, with a ring around the detail used as the cover of each course.">
+        </picture>
+        <div class="map-pins" id="map-pins"></div>
+      </div>
+      <div class="map-text">
+        <h3>Find a course in the picture</h3>
+        <p>Each ring marks the detail of the illustration used on a course cover. Select a ring to open that course. The full list follows below.</p>
+        <p class="map-key"><span class="key-ring key-academy"></span>Blue ring: the mandatory Academy</p>
+        <p class="map-key"><span class="key-ring"></span>White ring: elective courses</p>
+      </div>
+    </div>
+
     <div class="filters" id="filters" hidden>
       <fieldset>
         <legend>Delivery format</legend>

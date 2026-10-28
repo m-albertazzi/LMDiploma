@@ -272,6 +272,28 @@
     a.addEventListener('click', function (e) { e.preventDefault(); openDrawer(a.getAttribute('data-open-course'), a); });
   });
 
+
+  /* ---------- illustration map ---------- */
+  (function () {
+    var wrap = $('#map'), pins = $('#map-pins'); if (!wrap || !pins) { return; }
+    var n = 0;
+    courses.forEach(function (c) {
+      var h = c.hotspot; if (!h) { return; }
+      n++;
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'hotspot' + (c.mandatory ? ' is-academy' : '') + (h.y < 22 ? ' tip-below' : '') + (h.x < 22 ? ' tip-left' : '') + (h.x > 78 ? ' tip-right' : '');
+      b.style.setProperty('--x', h.x + '%'); b.style.setProperty('--y', h.y + '%'); b.style.setProperty('--d', h.d + '%');
+      b.setAttribute('aria-haspopup', 'dialog');
+      b.setAttribute('aria-label', c.title + ', ' + range(c.start, c.end) + '. Opens course details.');
+      b.dataset.course = c.id;
+      b.innerHTML = '<span class="tip" aria-hidden="true">' + esc(c.title) + '<small>' + esc(shortRange(c.start, c.end)) + ', ' + esc(c.format) + '</small></span>';
+      b.addEventListener('click', function () { openDrawer(c.id, b); });
+      pins.appendChild(b);
+    });
+    wrap.hidden = n === 0;
+  })();
+
   /* ---------- planner ---------- */
   var pRoot = $('#planner-root');
   function overlaps(a, b) { return a.start <= b.end && b.start <= a.end; }
