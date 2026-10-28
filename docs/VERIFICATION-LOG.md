@@ -56,7 +56,7 @@ Diploma page: https://www.itcilo.org/diplomas/diploma-labour-migration-experts-a
 | D12 | Artwork credits | none | Brand guidelines require credits | **Resolved:** footer reads "Images: Samuele Omati" (credit supplied by the client). Confirm the wording if a different form is preferred |
 | D13 | Capstone and five-year rules | Not specified how submission works or when the five years start | n/a | FAQ points to migration@itcilo.org |
 
-Other facts used and where they come from: 300 hours, five years, three electives, Academy mandatory but not necessarily first, no separate Diploma intake, nominations by email (presentation, flyer, docx, Diploma page); address (official course pages); Academy languages and "simultaneous translation for plenary" (Academy page).
+Other facts used and where they come from: 300 hours, five years, three courses of the participant's choice, Academy mandatory but not necessarily first, no separate Diploma intake, nominations by email (presentation, flyer, docx, Diploma page); address (official course pages); Academy languages and "simultaneous translation for plenary" (Academy page).
 
 ## Test results (28 October 2026)
 

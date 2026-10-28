@@ -1,6 +1,6 @@
 # Diploma for Labour Migration Experts and Practitioners: landing page
 
-A static, dependency-free landing page for the ITCILO Diploma for Labour Migration Experts and Practitioners. It explains the Diploma, lists the eligible 2027 courses with a detail drawer, and includes a planner for the Academy plus three electives. The plan can be printed or downloaded as a one-page PDF memo (generated in the browser; no libraries).
+A static, dependency-free landing page for the ITCILO Diploma for Labour Migration Experts and Practitioners. It explains the Diploma, lists the eligible 2027 courses with a detail drawer, and includes a planner for the Academy plus three courses of your choice. The plan can be printed or downloaded as a one-page PDF memo (generated in the browser; no libraries).
 
 - No build step, no frameworks, no external requests (fonts and images are self-hosted).
 - All links are relative, so it works at `https://<user>.github.io/LMDiploma/` and from a local folder.

@@ -174,7 +174,7 @@
           '<span class="when">' + esc(shortRange(c.start, c.end)) + '<br><small>' + esc(fLong.format(d(c.start)).replace(/^\d+ \w+ /, '')) + '</small></span>' +
           '<span class="name">' + esc(c.title) + '</span>' +
           '<span class="meta">' +
-            (c.mandatory ? '<span class="pill pill-mandatory">Mandatory</span>' : '<span class="pill pill-elective">Elective</span>') +
+            (c.mandatory ? '<span class="pill pill-mandatory">Mandatory</span>' : '<span class="pill pill-elective">Your choice</span>') +
             formatPill(c) + f2f +
             '<span>' + (c.languagesVerified ? esc(c.languages.join(', ')) : 'Language to be confirmed') + '</span>' +
             clusterTags(c) +
@@ -189,7 +189,7 @@
   function updatePlanBar() {
     var bar = $('#planbar'); if (!bar) { return; }
     bar.hidden = plan.length === 0;
-    $('#planbar-text').textContent = plan.length ? 'In your plan: the Academy and ' + plan.length + ' of ' + MAX + ' electives.' : '';
+    $('#planbar-text').textContent = plan.length ? 'In your plan: the Academy and ' + plan.length + ' of ' + MAX + ' courses of your choice.' : '';
   }
   timetable.addEventListener('click', function (e) {
     var b = e.target.closest('.row'); if (b) { openDrawer(b.dataset.id, b); }
@@ -218,7 +218,7 @@
       : '<button type="button" class="btn btn-secondary" id="d-plan" aria-pressed="' + inPlan(c.id) + '">' + (inPlan(c.id) ? 'Remove from my plan' : 'Add to my plan') + '</button>';
     return '<div class="d-cover" style="--acc:' + c.accent + '">' + coverHTML(c, true) + '</div>' +
       '<div class="d-body">' +
-      '<div class="d-pills">' + (c.mandatory ? '<span class="pill pill-mandatory">Mandatory for the Diploma</span>' : '<span class="pill pill-elective">Elective</span>') + formatPill(c) +
+      '<div class="d-pills">' + (c.mandatory ? '<span class="pill pill-mandatory">Mandatory for the Diploma</span>' : '<span class="pill pill-elective">Your choice</span>') + formatPill(c) +
       (!c.mandatory && inPlan(c.id) ? '<span class="pill pill-plan">In your plan</span>' : '') + '</div>' +
       '<h2 id="drawer-title" tabindex="-1">' + esc(c.title) + '</h2>' +
       '<p>' + esc(c.overview) + '</p>' + flags + facts +
@@ -241,7 +241,7 @@
     var pb = $('#d-plan');
     if (pb) {
       pb.addEventListener('click', function () {
-        if (!togglePlan(c.id)) { pb.insertAdjacentHTML('afterend', '<p class="hint" role="alert">Your plan already has three electives. Remove one in the planner first.</p>'); return; }
+        if (!togglePlan(c.id)) { pb.insertAdjacentHTML('afterend', '<p class="hint" role="alert">Your plan already has three courses of your choice. Remove one in the planner first.</p>'); return; }
         renderDrawer(c, true);
       });
       if (refocus) { pb.focus(); }
@@ -308,7 +308,7 @@
         '<input type="checkbox" id="pk-' + c.id + '" data-id="' + c.id + '"' + (on ? ' checked' : '') + (dis ? ' disabled' : '') + '>' +
         '<label for="pk-' + c.id + '"><span class="p-title">' + esc(c.title) + '</span><span class="p-meta">' + esc(range(c.start, c.end)) + '. ' + esc(c.format) + (c.f2f && c.format === 'Blended' ? ', face-to-face ' + esc(shortRange(c.f2f.start, c.f2f.end)) : '') + '</span></label></div>';
     }).join('');
-    $('#planner-hint').textContent = full ? 'You have chosen three electives. Untick one to choose a different course.' : '';
+    $('#planner-hint').textContent = full ? 'You have chosen three courses. Untick one to choose a different course.' : '';
     var chosen = plan.map(function (id) { return byId[id]; }).sort(function (a, b) { return a.start < b.start ? -1 : 1; });
     var all = [academy].concat(chosen).sort(function (a, b) { return a.start < b.start ? -1 : 1; });
     var span = '';
@@ -350,9 +350,9 @@
     sheet.innerHTML = '<img class="logo" src="assets/img/itc-logo-700.png" alt="">' +
       '<h1>My Diploma plan</h1><p>Diploma for Labour Migration Experts and Practitioners. Prepared on ' + esc(fLong.format(new Date())) + '.</p>' +
       '<table><thead><tr><th>Course</th><th>Status</th><th>Dates (2027)</th><th>Format</th></tr></thead><tbody>' +
-      rows.map(function (c) { return '<tr><td>' + esc(c.title) + '<br><span class="small">' + esc(c.officialUrl) + '</span></td><td>' + (c.mandatory ? 'Mandatory' : 'Elective') + '</td><td>' + esc(range(c.start, c.end)) + (c.f2f ? '<br>Face-to-face: ' + esc(range(c.f2f.start, c.f2f.end)) : '') + (c.deadline ? '<br>Apply by: ' + esc(fLong.format(d(c.deadline))) : '') + '</td><td>' + esc(c.format) + '</td></tr>'; }).join('') +
+      rows.map(function (c) { return '<tr><td>' + esc(c.title) + '<br><span class="small">' + esc(c.officialUrl) + '</span></td><td>' + (c.mandatory ? 'Mandatory' : 'Your choice') + '</td><td>' + esc(range(c.start, c.end)) + (c.f2f ? '<br>Face-to-face: ' + esc(range(c.f2f.start, c.f2f.end)) : '') + (c.deadline ? '<br>Apply by: ' + esc(fLong.format(d(c.deadline))) : '') + '</td><td>' + esc(c.format) + '</td></tr>'; }).join('') +
       '</tbody></table>' +
-      '<p>Elective courses chosen: ' + plan.length + ' of ' + MAX + '. The Diploma also requires an individual capstone project and completion of all requirements within five years.</p>' +
+      '<p>Courses of your choice: ' + plan.length + ' of ' + MAX + '. The Diploma also requires an individual capstone project and completion of all requirements within five years.</p>' +
       '<p class="small"><strong>Planning aid only.</strong> This memo is not a registration, an admission, or a confirmation that a Diploma will be awarded. Confirm dates and deadlines on each official course page and register for each course separately. Questions: ' + D.programme.email + '.</p>';
     document.body.classList.add('print-plan');
     window.print();
@@ -413,7 +413,7 @@
       ensure(90);
       gap(6);
       text(c.title, 13, { bold: true, color: BLUE });
-      text((c.mandatory ? 'Mandatory for the Diploma' : 'Elective') + ', ' + c.format, 10.5);
+      text((c.mandatory ? 'Mandatory for the Diploma' : 'Your choice') + ', ' + c.format, 10.5);
       text('Dates: ' + range(c.start, c.end), 10.5);
       if (c.f2f) { text('Face-to-face: ' + range(c.f2f.start, c.f2f.end) + ', ' + c.f2f.place, 10.5); }
       text('Language: ' + langText(c), 10.5);
@@ -423,7 +423,7 @@
       gap(4); rule('0.8 0.8 0.8');
     });
     gap(6);
-    text('Electives chosen: ' + plan.length + ' of ' + MAX + '. The Diploma also requires an individual capstone project, and all requirements must be completed within five years.', 10.5);
+    text('Courses of your choice: ' + plan.length + ' of ' + MAX + '. The Diploma also requires an individual capstone project, and all requirements must be completed within five years.', 10.5);
     gap(6);
     text('Planning aid only. This memo is not a registration, an admission, or a confirmation that a Diploma will be awarded. Confirm dates and deadlines on each official course page and register for each course separately.', 9.5, { color: '0.357 0.357 0.357' });
     text('Questions: ' + D.programme.email + '   ' + D.programme.website, 9.5, { color: '0.357 0.357 0.357' });
