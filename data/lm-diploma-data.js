@@ -16,7 +16,9 @@
  * `hotspot` places the course ring on the illustration in "Eligible courses": x and y are the
  * centre and d the diameter, all as a percentage of the picture width. Omit it for no ring.
  *
- * `review` lists items that need a human decision. The page shows them only while
+ * `publicNotes` contains concise participant notices (always visible, including exports).
+ * `deadlineVerified: false` prevents an unconfirmed deadline being presented as definitive.
+ * `review` lists internal items that need a human decision. The page shows them only while
  * `meta.showReviewFlags` is true (preview builds). Set it to false before launch.
  */
 window.LMD_DATA = {
@@ -354,7 +356,7 @@ window.LMD_DATA = {
         "Understand institutional coordination for evidence-based policy"
       ],
       review: [
-        { field: "2027 edition", supplied: "11 October to 19 November 2027", official: "Not listed", note: "The official course page lists only the 2026 edition (12 October to 13 November 2026), and the catalogue shows no 2027 edition. Dates here come from the supplied calendar only. The page has no deadline, course code or application link yet." }
+        { field: "2027 edition", supplied: "11 October to 19 November 2027", official: "Not listed", note: "The official course page lists only the 2026 edition (12 October to 13 November 2026), and the catalogue shows no 2027 edition. The programme coordinator confirmed on 28 October 2026 that the 2027 calendar dates should be maintained. No deadline, course code or application link has been supplied." }
       ]
     },
 
@@ -369,8 +371,7 @@ window.LMD_DATA = {
       f2f: { start: "2027-11-08", end: "2027-11-12", place: "Turin, Italy" },
       phases: ["Online: 18 October to 5 November 2027", "Face-to-face in Turin: 8 to 12 November 2027"],
       languages: ["English"],
-      languagesVerified: false,
-      languageNote: "English according to the course page header. The page body also mentions French. To be confirmed.",
+      languagesVerified: true,
       clusters: ["protection", "crisis"],
       image: "assets/img/courses/social-protection.webp",
       imageAlt: "Three patterned birds perched on a branch among autumn leaves",
@@ -399,9 +400,7 @@ window.LMD_DATA = {
         "Analyse unilateral, bilateral and multilateral measures",
         "Draw on good practice from other countries"
       ],
-      review: [
-        { field: "Language", note: "The official page header says English; the body says materials and tuition are in English and French. English is shown." }
-      ]
+      review: []
     },
 
     {
@@ -421,7 +420,10 @@ window.LMD_DATA = {
       accent: "#F28B59",
       officialUrl: "https://www.itcilo.org/courses/exploring-labour-dimensions-climate-change-and-human-mobility",
       applyUrl: null,
-      deadline: "2027-12-03",
+      deadline: "2027-10-10",
+      deadlineTime: "23:59",
+      deadlineTimeZone: "Europe/Rome",
+      deadlineSource: "Programme coordinator, 28 October 2026",
       courseCode: "A9720023",
       overview: "An online course on how climate change affects work and mobility, and what policy can do about it: Just Transition Guidelines, green jobs and skills, and decent work for people who move because of climate impacts.",
       audience: [
@@ -443,7 +445,6 @@ window.LMD_DATA = {
         "Apply a rights-based approach grounded in international labour standards"
       ],
       review: [
-        { field: "Application deadline", supplied: "Not in calendar", official: "3 December 2027", note: "The official page's deadline is the same day the course ends. This is probably a typing error; confirm before launch." },
         { field: "Application link", note: "The official page has an 'Apply now' button but no link behind it, so no application button is shown." }
       ]
     }

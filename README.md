@@ -1,82 +1,75 @@
-# Diploma for Labour Migration Experts and Practitioners: landing page
+# Diploma for Labour Migration Experts and Practitioners
 
-A static, dependency-free landing page for the ITCILO Diploma for Labour Migration Experts and Practitioners. It explains the Diploma, lists the eligible 2027 courses with a detail drawer, and includes a planner for the Academy plus three courses of your choice. The plan can be printed or downloaded as a one-page PDF memo (generated in the browser; no libraries).
+Static, dependency-free-at-runtime ITCILO programme guide, course explorer and Diploma planner. There is no framework or build step. Fonts, images and scripts are self-hosted; course links take visitors to ITCILO.
 
-- No build step, no frameworks, no external requests (fonts and images are self-hosted).
-- All links are relative, so it works at `https://<user>.github.io/LMDiploma/` and from a local folder.
-- Content lives in `data/lm-diploma-data.js`. Narrative copy (overview, pathway, FAQs) lives in `index.html`.
+## Local preview
 
-## Preview locally
-
-Opening `index.html` directly works. For a closer match to hosting, serve the folder:
-
-```bash
+```sh
 python3 -m http.server 8000
-# open http://localhost:8000/
 ```
 
-To test the `/LMDiploma/` subpath, serve the parent folder of a directory named `LMDiploma`.
+Open `http://localhost:8000/`. To check the GitHub Pages subpath, serve the parent directory of a folder called `LMDiploma` and open `/LMDiploma/`.
 
-## Update content
+## Updating content
 
-Everything about courses is in `data/lm-diploma-data.js`: dates, format, face-to-face block, language, deadline, descriptions, images, official and application links, and thematic clusters. After editing, run:
+`data/lm-diploma-data.js` holds programme requirements, the calendar year, course descriptions, dates, languages, face-to-face periods, application deadlines and links. Course rows, planner choices, Academy dates, repeated requirement labels and memo exports read these values. Update the readable no-JavaScript fallback copy in `index.html` too when rolling over a year or changing programme requirements. Keep social metadata and branding consistent if the site address or programme name changes.
 
-```bash
-node scripts/validate-data.mjs
+- Exactly one course is the mandatory Academy. Courses are sorted by start date.
+- Leave `applyUrl` null when no application link is available; the site must not invent one.
+- `languagesVerified: false` displays `languageNote`. The current Social protection edition is English only, following the coordinator's instruction.
+- `deadlineTime` uses 24-hour `HH:MM`; include an IANA `deadlineTimeZone`. Climate mobility closes on **10 October 2027, 23:59, Europe/Rome**, following the coordinator's instruction. `deadlineSource` records provenance.
+- `publicNotes: [{ label, text }]` can flag participant-relevant uncertainty. They appear in the course list, course details, planner and memo exports even when internal review notes are hidden. There are no pending public notices after the coordinator's decisions on 28 October 2026.
+- `deadlineVerified: false` explicitly qualifies a deadline. It must not look definitive in a saved memo.
+- `review` and `globalReview` are historical/internal editorial notes. `meta.showReviewFlags` controls their visibility only; it never hides public notices. Leave it false in production.
+- Fees remain omitted, as requested for this site.
+
+Programme decisions and the distinction between official-page checks and coordinator updates are recorded in `docs/VERIFICATION-LOG.md` and `docs/CHANGES-2026-10-28.md`.
+
+## Planner and exports
+
+The planner saves only course IDs in this browser's local storage; nothing is submitted. Restored selections are validated, deduplicated and limited to the required number of courses. Storage failure does not prevent planning and is explained to the visitor.
+
+- **Print / save PDF** opens the browser's print window for a memo made from semantic HTML. Choose Save as PDF there. PDF accessibility varies with the browser; this is not a claim of PDF/UA conformance.
+- **Download memo (HTML)** saves a standalone UTF-8 document with headings, definition lists, clickable course/application links and any public notices. It preserves non-Latin text, needs no scripts, and can be opened offline. Course and contact links naturally need a connection.
+
+The handwritten PDF serializer has been removed. Both memo routes share the same content builder in `assets/js/planner-utils.js`.
+
+## Checks
+
+Node 22 or newer is recommended. Development tools are not loaded by the published page.
+
+```sh
+npm ci
+npx playwright install --with-deps chromium
+npm run check
 ```
 
-It catches missing fields, bad dates, face-to-face dates outside the course period, and missing images.
+- `npm run validate`: dates, course identifiers, required fields, face-to-face ranges, assets, deadline times/timezones and notices.
+- `npm test`: malformed/duplicate saved plans, Unicode and escaped memo content, public notices, programme data and coordinator decisions.
+- `npm run test:browser`: a temporary local server under `/LMDiploma/`, desktop/mobile Chromium, filters, tabs, menu, modal focus, planner limits/overlaps/persistence, disabled/corrupt storage, HTML download, print layout, no-JavaScript fallback and axe accessibility checks.
 
-Rules built into the data model:
+Screenshots and memo samples are written to ignored `test-results/`; set `ARTIFACT_DIR` to choose another location. GitHub Actions repeats `npm run check` on main-branch pushes and pull requests. Automated accessibility checks supplement manual review; they are not full WCAG certification. Screen-reader and Safari/Firefox testing are still separate checks.
 
-- The site does not show fees. There is no fee field in the data file.
-- A course shows an **Apply** button only when `applyUrl` is set. Leave it `null` otherwise.
-- `languagesVerified: false` makes the page show `languageNote` instead of a language.
-- The `review` arrays hold open questions. They show only while `meta.showReviewFlags` is `true` (a review panel at the bottom and "Dates to confirm" tags). The launch build has it set to `false`; set it to `true` to see open questions again.
+## Design and assets
 
-To add a course for a new year, add an entry to `courses` (the page sorts by start date and groups by month). The planner and filters pick it up automatically. The planner text says "2027"; search `index.html` and `assets/js/app.js` for `2027` when rolling the calendar forward.
+The blue/cream palette, Noto Sans display headings, original illustration and official logos are retained. Body text uses normal width. On mobile the title and introduction precede the illustration. The course list comes first; the interactive illustration remains available in “Explore courses through the illustration.”
 
-## Replace assets
+Keep official logos unchanged. Course cover paths and descriptions live in the data file; hero images use responsive WebP sources in `index.html`. The flyer is `assets/docs/LM-Diploma-flyer.pdf`. Image credit is `credits.display`.
 
-| What | Where | Notes |
-| --- | --- | --- |
-| Hero illustration | `assets/img/hero-{640,960,1280,1800}.webp`, `hero-1280.jpg` | Square. Keep the same file names, or update `index.html` (`srcset` and preload). |
-| Illustration strips between sections | `assets/img/strip-*-{900,1800}.webp` | Slices of the same illustration (3:1). |
-| Course images | `assets/img/courses/<id>.webp` | Set the path in the data file. Aim for 800 px wide or more. The digital transformation course has no image yet; add one and set `image` and `imageAlt`. |
-| Logos | `assets/img/itc-logo*.png`, `itc-logo-memo.jpg` (used in the PDF memo), `ilo-logo.png`, `diploma-emblem.png` | Official files. Do not edit, recolour or redraw. |
-| Flyer | `assets/docs/LM-Diploma-flyer.pdf` | Keep the file name, or change `programme.flyer` in the data file and the link in `index.html`. |
-| Social sharing image | `assets/img/og-image.jpg` | 1200 x 630. |
-| Image credit | `credits.display` in the data file | Shown in the footer; currently "Images: Samuele Omati". |
+## GitHub Pages
 
-## Branding notes
-
-- Colours: ITCILO Blue 100% `#284B96`, Cyan 100% `#00A3E0`, Black 100% `#2B2A29`, plus cream, sand, ochre, terracotta, teal and dusty blue sampled from the illustration. Cyan is used for accents and graphics, not for small text on light backgrounds, where it does not reach the contrast needed.
-- Type: Noto Sans variable font with a width axis (`assets/fonts`, SIL Open Font License). Headings use the ExtraCondensed width, body text SemiCondensed. Text is left-aligned.
-- Logo: official ITC logo, top right of the header and bottom right of the footer, on white, with clear space around it. The ILO logo and Diploma emblem sit to its left. The blue logo is only used on white grounds.
-
-## Deploy on GitHub Pages
-
-GitHub Pages is enabled for this repository. To set it up again:
-
-1. Commit these files to the `main` branch of `m-albertazzi/LMDiploma`.
-2. In the repository go to **Settings > Pages**, choose **Deploy from a branch**, branch `main`, folder `/ (root)`, and save.
-3. The site appears at `https://m-albertazzi.github.io/LMDiploma/`. `.nojekyll` is included.
-4. The canonical, `og:url` and `og:image` addresses in `index.html` already assume that address. Change them if the site is hosted elsewhere.
-
-The repository is public, so its source and the ITCILO logo files are public too.
-
-## Quality checks that were run
-
-Automated (Playwright + axe-core) on desktop 1440 px and mobile 390 px, served under `/LMDiploma/`: no console errors or failed requests, no horizontal overflow, all images load, filters, drawer (focus, Escape, focus return, backdrop, deep link), planner (limit of three, overlap warning, persistence, print sheet), keyboard tabs and menu, reduced motion, no-JavaScript fallback, and zero axe violations for WCAG 2.1 A/AA and best practice. See `docs/VERIFICATION-LOG.md`.
+The public site is `https://m-albertazzi.github.io/LMDiploma/`. It uses the `main` branch, root folder and `.nojekyll`. No build output or bundled dependencies are needed. Pushing to the published branch triggers Pages; verify the resulting Pages workflow and live page after a release.
 
 ## Files
 
 ```
-index.html                 page structure and narrative copy
-data/lm-diploma-data.js    programme facts, clusters, courses, review notes
-assets/css/styles.css      styles
-assets/js/app.js           explorer, drawer, planner, tabs, navigation
-assets/img, fonts, docs    images, self-hosted fonts, flyer
-scripts/validate-data.mjs  data checks
-docs/VERIFICATION-LOG.md   sources, dates checked, discrepancies
+index.html                    page structure and fallback narrative
+assets/css/styles.css         responsive layout and print styles
+assets/js/app.js              navigation, filters, dialogs and planner
+assets/js/planner-utils.js    saved-plan rules and memo content
+data/lm-diploma-data.js       programme and course data
+scripts/validate-data.mjs      content checks
+tests/                        repeatable unit and browser checks
+.github/workflows/checks.yml   automated checks
+assets/img, fonts, docs        self-hosted assets
 ```

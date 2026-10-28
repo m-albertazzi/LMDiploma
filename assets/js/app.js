@@ -2,8 +2,8 @@
    No dependencies. Content comes from data/lm-diploma-data.js. */
 (function () {
   'use strict';
-  var D = window.LMD_DATA;
-  if (!D) { return; }
+  var D = window.LMD_DATA, U = window.LMD_UTILS;
+  if (!D || !U) { return; }
   var courses = D.courses.slice().sort(function (a, b) { return a.start < b.start ? -1 : a.start > b.start ? 1 : 0; });
   var byId = {};
   courses.forEach(function (c) { byId[c.id] = c; });
@@ -40,11 +40,35 @@
   }
   function list(items) { return '<ul>' + items.map(function (i) { return '<li>' + esc(i) + '</li>'; }).join('') + '</ul>'; }
   function langText(c) { return c.languagesVerified ? c.languages.join(' and ') : (c.languageNote || 'To be confirmed'); }
-  function tryStore(get, val) {
-    try { if (get) { return JSON.parse(window.localStorage.getItem(STORE) || '[]'); } window.localStorage.setItem(STORE, JSON.stringify(val)); } catch (e) { return get ? [] : undefined; }
+  function storageNotice() {
+    var message = $('#planner-storage');
+    if (message) { message.hidden = false; message.textContent = 'Your browser could not save these choices. You can still plan here; download a memo before leaving.'; }
   }
-  var DATE_FIELDS = ['Face-to-face dates', 'Overall end date', '2027 edition'];
-  function hasDateIssue(c) { return D.meta.showReviewFlags && (c.review || []).some(function (r) { return DATE_FIELDS.indexOf(r.field) > -1; }); }
+  function tryStore(get, val) {
+    try {
+      if (get) { return JSON.parse(window.localStorage.getItem(STORE) || '[]'); }
+      window.localStorage.setItem(STORE, JSON.stringify(val));
+    } catch (e) { storageNotice(); return get ? [] : undefined; }
+  }
+  function statusLabels(c) {
+    return U.publicNotes(c).map(function (note) { return '<span class="pill pill-flag">' + esc(note.label) + '</span>'; }).join('');
+  }
+  function word(number) { return ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'][number] || String(number); }
+  var electiveWord = word(MAX), yearsWord = word(D.programme.years);
+  var facts = {
+    calendarYear: D.meta.calendarYear, learningHours: D.programme.learningHours,
+    electivesRequired: MAX, electivesWord: electiveWord, electivesTitle: electiveWord.charAt(0).toUpperCase() + electiveWord.slice(1), yearsWord: yearsWord
+  };
+  $$('[data-fact]').forEach(function (el) { el.textContent = facts[el.dataset.fact]; });
+  $('#academy-dates').textContent = 'The ' + D.meta.calendarYear + ' Academy runs from ' + range(academy.start, academy.end) + ', with a face-to-face period in Turin from ' + range(academy.f2f.start, academy.f2f.end) + '.';
+  document.title = D.programme.title + ' | ITCILO';
+  $('#hero-title').textContent = D.programme.title;
+  $('.hero-sub').textContent = D.programme.subtitle;
+  var description = 'A structured learning pathway from ITCILO: complete the Academy on Labour Migration, ' + electiveWord + ' eligible courses and a capstone project within ' + yearsWord + ' years. Explore the ' + D.meta.calendarYear + ' courses and plan your pathway.';
+  $('meta[name="description"]').content = description;
+  $('meta[property="og:description"]').content = description;
+  $('#timetable').setAttribute('aria-label', D.meta.calendarYear + ' courses in date order');
+  $('#course-guidance').hidden = !courses.some(function (c) { return U.publicNotes(c).length; });
 
   /* ---------- credits, checked date ---------- */
   var checked = $('#checked'); if (checked) { checked.textContent = fLong.format(d(D.meta.lastChecked)); }
@@ -87,7 +111,7 @@
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape' && nav.classList.contains('open')) { closeMenu(); menuBtn.focus(); }
   });
-  var spyMap = { overview: 'overview', pathway: 'pathway', courses: 'courses', planner: 'courses', practical: 'practical', faqs: 'faqs', contact: 'contact' };
+  var spyMap = { overview: 'overview', pathway: 'pathway', courses: 'courses', planner: 'planner', practical: 'practical', faqs: 'faqs', contact: 'contact' };
   if ('IntersectionObserver' in window) {
     var io = new IntersectionObserver(function (entries) {
       entries.forEach(function (en) {
@@ -103,7 +127,7 @@
   }
 
   /* ---------- plan state ---------- */
-  var plan = (tryStore(true) || []).filter(function (id) { return byId[id] && !byId[id].mandatory; }).slice(0, MAX);
+  var plan = U.normalizePlan(tryStore(true), courses, MAX);
   function savePlan() { tryStore(false, plan); }
   function inPlan(id) { return plan.indexOf(id) > -1; }
   function togglePlan(id) {
@@ -147,7 +171,7 @@
 
   /* ---------- course list ---------- */
   function coverHTML(c, big) {
-    if (c.image) { return '<img src="' + esc(c.image) + '" alt="' + esc(c.imageAlt) + '" loading="lazy" decoding="async">'; }
+    if (c.image) { return '<img src="' + esc(c.image) + '" alt="' + esc(big ? c.imageAlt : '') + '" loading="lazy" decoding="async">'; }
     return '<span class="cover-fallback" aria-hidden="true"><span>' + esc(c.coverLabel || c.title) + '</span></span>';
   }
   function formatPill(c) { return '<span class="pill">' + esc(c.format) + '</span>'; }
@@ -179,7 +203,7 @@
             '<span>' + (c.languagesVerified ? esc(c.languages.join(', ')) : 'Language to be confirmed') + '</span>' +
             clusterTags(c) +
             (!c.mandatory && inPlan(c.id) ? '<span class="pill pill-plan">In your plan</span>' : '') +
-            (hasDateIssue(c) ? '<span class="pill pill-flag">Dates to confirm</span>' : '') +
+            statusLabels(c) +
           '</span>' +
           '<span class="go" aria-hidden="true"></span>' +
           '</button></li>';
@@ -204,7 +228,7 @@
       (c.f2f ? '<div><dt>Face-to-face</dt><dd>' + esc(range(c.f2f.start, c.f2f.end)) + '<small>' + esc(c.f2f.place) + '</small></dd></div>' : '') +
       '<div><dt>Format and place</dt><dd>' + esc(c.format) + '<small>' + esc(c.location) + '</small></dd></div>' +
       '<div><dt>Language</dt><dd>' + esc(langText(c)) + '</dd></div>' +
-      '<div><dt>Application deadline</dt><dd>' + (c.deadline ? esc(fLong.format(d(c.deadline))) : 'Not yet published on the official page') + '</dd></div>' +
+      '<div><dt>Application deadline</dt><dd>' + esc(U.deadlineText(c)) + '</dd></div>' +
       (c.courseCode ? '<div><dt>Course code</dt><dd>' + esc(c.courseCode) + '</dd></div>' : '') +
       '</dl>';
     var flags = '';
@@ -216,35 +240,40 @@
     var planBtn = c.mandatory
       ? '<p class="hint">The Academy is part of every plan.</p>'
       : '<button type="button" class="btn btn-secondary" id="d-plan" aria-pressed="' + inPlan(c.id) + '">' + (inPlan(c.id) ? 'Remove from my plan' : 'Add to my plan') + '</button>';
-    return '<div class="d-cover" style="--acc:' + c.accent + '">' + coverHTML(c, true) + '</div>' +
-      '<div class="d-body">' +
+    return '<div class="d-body">' +
       '<div class="d-pills">' + (c.mandatory ? '<span class="pill pill-mandatory">Mandatory for the Diploma</span>' : '<span class="pill pill-elective">Your choice</span>') + formatPill(c) +
       (!c.mandatory && inPlan(c.id) ? '<span class="pill pill-plan">In your plan</span>' : '') + '</div>' +
       '<h2 id="drawer-title" tabindex="-1">' + esc(c.title) + '</h2>' +
-      '<p>' + esc(c.overview) + '</p>' + flags + facts +
-      '<h3>Who it is for</h3>' + list(c.audience) +
-      '<h3>Main topics</h3>' + list(c.topics) +
-      '<h3>What you will be able to do</h3>' + list(c.outcomes) +
-      '<h3>Thematic areas</h3><p>' + (k || 'Not tied to one area; it anchors the whole Diploma.') + '</p>' +
+      '<p>' + esc(c.overview) + '</p>' + U.notesHTML(c) + flags +
       '<div class="d-actions">' +
         '<a class="btn btn-primary" href="' + esc(c.officialUrl) + '" rel="noopener">View course on itcilo.org</a>' +
         (c.applyUrl ? '<a class="btn btn-secondary" href="' + esc(c.applyUrl) + '" rel="noopener">Apply for this course</a>' : '') +
         planBtn +
       '</div>' +
       (c.applyUrl ? '' : '<p class="hint">There is no application link for this course on its official page yet. Check the course page or <a class="textlink" href="mailto:' + D.programme.email + '?subject=' + encodeURIComponent(c.title) + '">contact us</a>.</p>') +
+      facts +
+      '<h3>Who it is for</h3>' + list(c.audience) +
+      '<h3>Main topics</h3>' + list(c.topics) +
+      '<h3>What you will be able to do</h3>' + list(c.outcomes) +
+      '<h3>Thematic areas</h3><p>' + (k || 'Not tied to one area; it anchors the whole Diploma.') + '</p>' +
       '<p><a class="textlink" href="mailto:' + D.programme.email + '?subject=' + encodeURIComponent('Question about: ' + c.title) + '">Contact us about this course</a></p>' +
-      '<p class="hint">Dates and deadlines are confirmed on the official course page, which is the reference when anything differs. Checked ' + esc(fLong.format(d(D.meta.lastChecked))) + '.</p>' +
+      '<p class="hint">Confirm dates and deadlines with the team or on the official course page. Contact us if that page differs from a programme-team update here. Reviewed ' + esc(fLong.format(d(D.meta.lastChecked))) + '.</p>' +
       '</div>';
   }
   function renderDrawer(c, refocus) {
+    var previousScroll = drawer.scrollTop;
     body.innerHTML = drawerHTML(c);
     var pb = $('#d-plan');
     if (pb) {
       pb.addEventListener('click', function () {
-        if (!togglePlan(c.id)) { pb.insertAdjacentHTML('afterend', '<p class="hint" role="alert">Your plan already has three courses of your choice. Remove one in the planner first.</p>'); return; }
+        if (!togglePlan(c.id)) {
+          var alert = $('#d-plan-alert');
+          if (!alert) { pb.insertAdjacentHTML('afterend', '<p class="hint" id="d-plan-alert" role="alert">Your plan already has ' + MAX + ' courses of your choice. Remove one in the planner first.</p>'); }
+          return;
+        }
         renderDrawer(c, true);
       });
-      if (refocus) { pb.focus(); }
+      if (refocus) { pb.focus({ preventScroll: true }); drawer.scrollTop = previousScroll; }
     }
   }
   function openDrawer(id, trigger) {
@@ -306,9 +335,9 @@
       var on = inPlan(c.id), dis = full && !on;
       return '<div class="pick' + (dis ? ' is-disabled' : '') + '" style="--acc:' + c.accent + '">' +
         '<input type="checkbox" id="pk-' + c.id + '" data-id="' + c.id + '"' + (on ? ' checked' : '') + (dis ? ' disabled' : '') + '>' +
-        '<label for="pk-' + c.id + '"><span class="p-title">' + esc(c.title) + '</span><span class="p-meta">' + esc(range(c.start, c.end)) + '. ' + esc(c.format) + (c.f2f && c.format === 'Blended' ? ', face-to-face ' + esc(shortRange(c.f2f.start, c.f2f.end)) : '') + '</span></label></div>';
+        '<label for="pk-' + c.id + '"><span class="p-title">' + esc(c.title) + '</span><span class="p-meta">' + esc(range(c.start, c.end)) + '. ' + esc(c.format) + (c.f2f && c.format === 'Blended' ? ', face-to-face ' + esc(shortRange(c.f2f.start, c.f2f.end)) : '') + '</span>' + U.publicNotes(c).map(function (note) { return '<span class="public-status">' + esc(note.label) + '</span>'; }).join('') + '</label></div>';
     }).join('');
-    $('#planner-hint').textContent = full ? 'You have chosen three courses. Untick one to choose a different course.' : '';
+    $('#planner-hint').textContent = full ? 'You have chosen ' + MAX + ' courses. Untick one to choose a different course.' : '';
     var chosen = plan.map(function (id) { return byId[id]; }).sort(function (a, b) { return a.start < b.start ? -1 : 1; });
     var all = [academy].concat(chosen).sort(function (a, b) { return a.start < b.start ? -1 : 1; });
     var span = '';
@@ -320,11 +349,11 @@
     function li(done, html) { return '<li class="' + (done ? 'done' : '') + '"><span class="st" aria-hidden="true">' + (done ? '✓' : '') + '</span><span>' + html + '</span></li>'; }
     $('#planner-ledger').innerHTML =
       li(true, '<strong>Academy on Labour Migration</strong> is in your plan.') +
-      li(plan.length === MAX, '<strong>Three eligible courses:</strong> ' + plan.length + ' of ' + MAX + ' chosen.') +
+      li(plan.length === MAX, '<strong>' + esc(facts.electivesTitle) + ' eligible courses:</strong> ' + plan.length + ' of ' + MAX + ' chosen.') +
       li(false, '<strong>Capstone project:</strong> not part of this planner. <a class="textlink" href="mailto:' + D.programme.email + '">Ask us</a> about format and timing.') +
-      li(false, '<strong>Five-year period:</strong> your 2027 choices span ' + esc(span) + '. Ask us how the five years are counted for you.');
+      li(false, '<strong>' + D.programme.years + '-year period:</strong> your ' + D.meta.calendarYear + ' choices span ' + esc(span) + '. Ask us how the ' + yearsWord + ' years are counted for you.');
     $('#planner-plan').innerHTML = all.map(function (c) {
-      return '<li style="--acc:' + c.accent + '"><span class="t">' + esc(c.title) + (c.mandatory ? ' (mandatory)' : '') + '</span><span class="d">' + esc(range(c.start, c.end)) + ', ' + esc(c.format) + (c.f2f ? '. Face-to-face ' + esc(range(c.f2f.start, c.f2f.end)) : '') + '</span></li>';
+      return '<li style="--acc:' + c.accent + '"><span class="t">' + esc(c.title) + (c.mandatory ? ' (mandatory)' : '') + '</span><span class="d">' + esc(range(c.start, c.end)) + ', ' + esc(c.format) + (c.f2f ? '. Face-to-face ' + esc(range(c.f2f.start, c.f2f.end)) : '') + '</span>' + U.notesHTML(c) + '</li>';
     }).join('');
     var ov = [];
     for (var i = 0; i < all.length; i++) { for (var j = i + 1; j < all.length; j++) { if (overlaps(all[i], all[j])) { ov.push(all[i].title + ' and ' + all[j].title); } } }
@@ -345,124 +374,19 @@
     return [academy].concat(plan.map(function (id) { return byId[id]; })).sort(function (a, b) { return a.start < b.start ? -1 : 1; });
   }
   function printMemo() {
-    var rows = memoRows();
     var sheet = $('#print-sheet');
-    sheet.innerHTML = '<img class="logo" src="assets/img/itc-logo-700.png" alt="">' +
-      '<h1>My Diploma plan</h1><p>Diploma for Labour Migration Experts and Practitioners. Prepared on ' + esc(fLong.format(new Date())) + '.</p>' +
-      '<table><thead><tr><th>Course</th><th>Status</th><th>Dates (2027)</th><th>Format</th></tr></thead><tbody>' +
-      rows.map(function (c) { return '<tr><td>' + esc(c.title) + '<br><span class="small">' + esc(c.officialUrl) + '</span></td><td>' + (c.mandatory ? 'Mandatory' : 'Your choice') + '</td><td>' + esc(range(c.start, c.end)) + (c.f2f ? '<br>Face-to-face: ' + esc(range(c.f2f.start, c.f2f.end)) : '') + (c.deadline ? '<br>Apply by: ' + esc(fLong.format(d(c.deadline))) : '') + '</td><td>' + esc(c.format) + '</td></tr>'; }).join('') +
-      '</tbody></table>' +
-      '<p>Courses of your choice: ' + plan.length + ' of ' + MAX + '. The Diploma also requires an individual capstone project and completion of all requirements within five years.</p>' +
-      '<p class="small"><strong>Planning aid only.</strong> This memo is not a registration, an admission, or a confirmation that a Diploma will be awarded. Confirm dates and deadlines on each official course page and register for each course separately. Questions: ' + D.programme.email + '.</p>';
+    // The on-screen planner remains the accessible source. The memo also has a standalone HTML download.
+    sheet.innerHTML = U.memoBody(D, memoRows(), fLong.format(new Date()));
     document.body.classList.add('print-plan');
     window.print();
   }
-
-  /* A small PDF writer (A4, Helvetica, optional JPEG logo). No libraries. */
-  function pdfText(s) { return String(s).replace(/[–—]/g, '-').replace(/[‘’]/g, "'").replace(/[“”]/g, '"').replace(/[^\x20-\x7E -ÿ]/g, '?'); }
-  function pdfEsc(s) { return pdfText(s).replace(/\\/g, '\\\\').replace(/\(/g, '\\(').replace(/\)/g, '\\)'); }
-  function bytes(s) { var a = new Uint8Array(s.length); for (var i = 0; i < s.length; i++) { a[i] = s.charCodeAt(i) & 255; } return a; }
-  function loadLogo() {
-    return new Promise(function (res) {
-      var img = new Image();
-      img.onload = function () {
-        fetch('assets/img/itc-logo-memo.jpg').then(function (r) { return r.arrayBuffer(); }).then(function (b) { res({ data: new Uint8Array(b), w: img.naturalWidth, h: img.naturalHeight }); }).catch(function () { res(null); });
-      };
-      img.onerror = function () { res(null); };
-      img.src = 'assets/img/itc-logo-memo.jpg';
-    });
-  }
-  function buildPdf(logo) {
-    var W = 595.28, H = 841.89, M = 54, LW = W - 2 * M;
-    var cv = document.createElement('canvas').getContext('2d');
-    function width(t, size, bold) { cv.font = (bold ? 'bold ' : '') + size + 'px Helvetica, Arial, sans-serif'; return cv.measureText(pdfText(t)).width; }
-    function wrap(t, size, bold, maxW) {
-      var words = pdfText(t).split(/\s+/), lines = [], cur = '';
-      words.forEach(function (w) {
-        var test = cur ? cur + ' ' + w : w;
-        if (width(test, size, bold) <= maxW) { cur = test; return; }
-        if (cur) { lines.push(cur); cur = ''; }
-        while (width(w, size, bold) > maxW) { var k = w.length; while (k > 1 && width(w.slice(0, k), size, bold) > maxW) { k--; } lines.push(w.slice(0, k)); w = w.slice(k); }
-        cur = w;
-      });
-      if (cur) { lines.push(cur); }
-      return lines;
-    }
-    var pages = [], ops = [], y;
-    function newPage() { if (ops.length) { pages.push(ops.join('\n')); } ops = []; y = H - M; }
-    function ensure(h) { if (y - h < M) { newPage(); } }
-    function text(t, size, o) {
-      o = o || {}; var x = o.x || M, maxW = o.w || LW, lead = size * 1.4;
-      wrap(t, size, o.bold, maxW).forEach(function (l) {
-        ensure(lead); y -= lead;
-        var col = o.color || '0.169 0.165 0.161';
-        ops.push('BT /' + (o.bold ? 'F2' : 'F1') + ' ' + size + ' Tf ' + col + ' rg ' + x.toFixed(2) + ' ' + y.toFixed(2) + ' Td (' + pdfEsc(l) + ') Tj ET');
-      });
-    }
-    function gap(h) { y -= h; }
-    function rule(col) { ensure(8); ops.push(col + ' RG 1 w ' + M + ' ' + (y - 4).toFixed(2) + ' m ' + (W - M) + ' ' + (y - 4).toFixed(2) + ' l S'); y -= 10; }
-    var BLUE = '0.157 0.294 0.588';
-    newPage();
-    if (logo) { var lh = 40, lw = lh * logo.w / logo.h; ops.push('q ' + lw.toFixed(2) + ' 0 0 ' + lh + ' ' + (W - M - lw).toFixed(2) + ' ' + (H - M - lh + 6).toFixed(2) + ' cm /Im1 Do Q'); }
-    y = H - M - 4;
-    text('My Diploma plan', 26, { bold: true, color: BLUE, w: LW - 150 });
-    text('Diploma for Labour Migration Experts and Practitioners', 12, { color: BLUE, w: LW - 150 });
-    text('Prepared on ' + fLong.format(new Date()), 10, { color: '0.357 0.357 0.357' });
-    gap(8); y = Math.min(y, H - M - 56); rule(BLUE);
-    memoRows().forEach(function (c) {
-      ensure(90);
-      gap(6);
-      text(c.title, 13, { bold: true, color: BLUE });
-      text((c.mandatory ? 'Mandatory for the Diploma' : 'Your choice') + ', ' + c.format, 10.5);
-      text('Dates: ' + range(c.start, c.end), 10.5);
-      if (c.f2f) { text('Face-to-face: ' + range(c.f2f.start, c.f2f.end) + ', ' + c.f2f.place, 10.5); }
-      text('Language: ' + langText(c), 10.5);
-      text('Application deadline: ' + (c.deadline ? fLong.format(d(c.deadline)) : 'not yet published on the course page'), 10.5);
-      text('Course page: ' + c.officialUrl, 9.5, { color: '0.357 0.357 0.357' });
-      if (c.applyUrl) { text('Apply: ' + c.applyUrl, 9.5, { color: '0.357 0.357 0.357' }); }
-      gap(4); rule('0.8 0.8 0.8');
-    });
-    gap(6);
-    text('Courses of your choice: ' + plan.length + ' of ' + MAX + '. The Diploma also requires an individual capstone project, and all requirements must be completed within five years.', 10.5);
-    gap(6);
-    text('Planning aid only. This memo is not a registration, an admission, or a confirmation that a Diploma will be awarded. Confirm dates and deadlines on each official course page and register for each course separately.', 9.5, { color: '0.357 0.357 0.357' });
-    text('Questions: ' + D.programme.email + '   ' + D.programme.website, 9.5, { color: '0.357 0.357 0.357' });
-    pages.push(ops.join('\n'));
-
-    // assemble objects
-    var objs = [], imgObj = logo ? 5 : 0, first = logo ? 6 : 5;
-    objs[1] = [bytes('<< /Type /Catalog /Pages 2 0 R >>')];
-    var kids = pages.map(function (_, i) { return (first + i * 2) + ' 0 R'; }).join(' ');
-    objs[2] = [bytes('<< /Type /Pages /Kids [' + kids + '] /Count ' + pages.length + ' >>')];
-    objs[3] = [bytes('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>')];
-    objs[4] = [bytes('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>')];
-    if (logo) {
-      objs[5] = [bytes('<< /Type /XObject /Subtype /Image /Width ' + logo.w + ' /Height ' + logo.h + ' /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ' + logo.data.length + ' >>\nstream\n'), logo.data, bytes('\nendstream')];
-    }
-    pages.forEach(function (content, i) {
-      var pn = first + i * 2, cn = pn + 1;
-      objs[pn] = [bytes('<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ' + W + ' ' + H + '] /Resources << /Font << /F1 3 0 R /F2 4 0 R >>' + (logo ? ' /XObject << /Im1 5 0 R >>' : '') + ' >> /Contents ' + cn + ' 0 R >>')];
-      var cb = bytes(content);
-      objs[cn] = [bytes('<< /Length ' + cb.length + ' >>\nstream\n'), cb, bytes('\nendstream')];
-    });
-    var parts = [bytes('%PDF-1.4\n')], offset = parts[0].length, offsets = [];
-    for (var n = 1; n < objs.length; n++) {
-      offsets[n] = offset;
-      var chunk = [bytes(n + ' 0 obj\n')].concat(objs[n], [bytes('\nendobj\n')]);
-      chunk.forEach(function (c) { parts.push(c); offset += c.length; });
-    }
-    var xref = 'xref\n0 ' + objs.length + '\n0000000000 65535 f \n';
-    for (var k = 1; k < objs.length; k++) { xref += ('0000000000' + offsets[k]).slice(-10) + ' 00000 n \n'; }
-    parts.push(bytes(xref + 'trailer\n<< /Size ' + objs.length + ' /Root 1 0 R >>\nstartxref\n' + offset + '\n%%EOF'));
-    return new Blob(parts, { type: 'application/pdf' });
-  }
   function downloadMemo() {
-    loadLogo().then(function (logo) {
-      var blob = buildPdf(logo), a = document.createElement('a');
-      a.href = URL.createObjectURL(blob); a.download = 'my-diploma-plan.pdf';
-      document.body.appendChild(a); a.click(); a.remove();
-      setTimeout(function () { URL.revokeObjectURL(a.href); }, 4000);
-    });
+    var html = U.memoDocument(D, memoRows(), fLong.format(new Date()));
+    var blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+    var url = URL.createObjectURL(blob), a = document.createElement('a');
+    a.href = url; a.download = 'my-diploma-plan.html';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
   }
   $('#planner-print').addEventListener('click', printMemo);
   $('#bar-print').addEventListener('click', printMemo);

@@ -1,5 +1,7 @@
 # Source and verification log
 
+**Historical source-check record for the initial build.** The coordinator decisions in [CHANGES-2026-10-28.md](CHANGES-2026-10-28.md) supersede the open items below for Measuring, Digital transformation, Climate mobility and Social protection. In particular, the live site no longer treats those four points as awaiting confirmation.
+
 Checked on **28 October 2026** by reading the official ITCILO pages through the build environment's web tools. Direct downloads from itcilo.org were not possible from the shell, so official cover images and live application pages could not be fetched or opened.
 
 ## Supplied materials used

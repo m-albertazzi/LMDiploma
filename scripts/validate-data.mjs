@@ -16,6 +16,7 @@ const errors = [], warnings = [];
 const err = (m) => errors.push(m), warn = (m) => warnings.push(m);
 const iso = /^\d{4}-\d{2}-\d{2}$/;
 const day = (s) => new Date(s + 'T00:00:00Z');
+const validDate = (s) => iso.test(s) && !Number.isNaN(day(s).getTime()) && day(s).toISOString().slice(0, 10) === s;
 const clusterIds = new Set(D.clusters.map((c) => c.id));
 const ids = new Set();
 
@@ -25,12 +26,17 @@ for (const c of D.courses) {
   if (ids.has(c.id)) err(`${where} duplicate id`); ids.add(c.id);
   for (const k of ['title', 'start', 'end', 'format', 'location', 'languages', 'officialUrl', 'overview', 'audience', 'topics', 'outcomes', 'accent'])
     if (c[k] === undefined || c[k] === '' ) err(`${where} missing ${k}`);
-  for (const k of ['start', 'end', 'deadline']) if (c[k] && !iso.test(c[k])) err(`${where} ${k} must be YYYY-MM-DD`);
+  for (const k of ['start', 'end', 'deadline']) if (c[k] && !validDate(c[k])) err(`${where} ${k} must be a real YYYY-MM-DD date`);
+  if (!/^[a-z][a-z0-9-]*$/.test(c.id)) err(`${where} id must contain lowercase letters, digits or hyphens`);
+  if (c.deadlineTime && (!/^([01]\d|2[0-3]):[0-5]\d$/.test(c.deadlineTime) || !c.deadline || !c.deadlineTimeZone)) err(`${where} deadlineTime needs HH:MM, a deadline date and a timezone`);
+  if (c.deadlineTimeZone) { try { new Intl.DateTimeFormat('en', { timeZone: c.deadlineTimeZone }); } catch { err(`${where} invalid deadlineTimeZone`); } }
+  if (c.publicNotes && (!Array.isArray(c.publicNotes) || c.publicNotes.some(n => !n.label || !n.text))) err(`${where} publicNotes need label and text`);
   if (c.start > c.end) err(`${where} start is after end`);
   if (!['Online', 'Blended', 'Face-to-face'].includes(c.format)) err(`${where} format must be Online, Blended or Face-to-face`);
   if (c.format === 'Blended' && !c.f2f) err(`${where} blended courses need an f2f block`);
   if (c.format === 'Online' && c.f2f) warn(`${where} online course has an f2f block`);
   if (c.f2f) {
+    if (!validDate(c.f2f.start) || !validDate(c.f2f.end) || c.f2f.start > c.f2f.end) err(`${where} invalid face-to-face dates`);
     if (c.f2f.start < c.start || c.f2f.end > c.end) err(`${where} face-to-face dates fall outside the course dates`);
     for (const k of ['start', 'end']) { const w = day(c.f2f[k]).getUTCDay(); if (w === 0 || w === 6) warn(`${where} face-to-face ${k} (${c.f2f[k]}) is a weekend day`); }
   }
@@ -44,7 +50,7 @@ for (const c of D.courses) {
   if (!c.languagesVerified && !c.languageNote) warn(`${where} unverified language needs languageNote`);
 }
 if (!fs.existsSync(path.join(root, D.programme.flyer.path))) err('Flyer PDF not found at ' + D.programme.flyer.path);
-if (D.meta.showReviewFlags) warn('meta.showReviewFlags is true: the review panel and "Dates to confirm" tags are visible. Set to false before launch.');
+if (D.meta.showReviewFlags) warn('meta.showReviewFlags is true: internal review notes are visible. Set to false before launch.');
 
 warnings.forEach((w) => console.log('warning: ' + w));
 errors.forEach((e) => console.log('ERROR: ' + e));
