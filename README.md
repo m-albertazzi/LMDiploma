@@ -32,7 +32,7 @@ Rules built into the data model:
 - The site does not show fees. There is no fee field in the data file.
 - A course shows an **Apply** button only when `applyUrl` is set. Leave it `null` otherwise.
 - `languagesVerified: false` makes the page show `languageNote` instead of a language.
-- The `review` arrays hold open questions. They show only while `meta.showReviewFlags` is `true` (a review panel at the bottom and "Dates to confirm" tags). **Set it to `false` before launch.**
+- The `review` arrays hold open questions. They show only while `meta.showReviewFlags` is `true` (a review panel at the bottom and "Dates to confirm" tags). The launch build has it set to `false`; set it to `true` to see open questions again.
 
 To add a course for a new year, add an entry to `courses` (the page sorts by start date and groups by month). The planner and filters pick it up automatically. The planner text says "2027"; search `index.html` and `assets/js/app.js` for `2027` when rolling the calendar forward.
 
@@ -56,14 +56,14 @@ To add a course for a new year, add an entry to `courses` (the page sorts by sta
 
 ## Deploy on GitHub Pages
 
-Nothing has been published. When you are ready:
+GitHub Pages is enabled for this repository. To set it up again:
 
 1. Commit these files to the `main` branch of `m-albertazzi/LMDiploma`.
 2. In the repository go to **Settings > Pages**, choose **Deploy from a branch**, branch `main`, folder `/ (root)`, and save.
 3. The site appears at `https://m-albertazzi.github.io/LMDiploma/`. `.nojekyll` is included.
 4. The canonical, `og:url` and `og:image` addresses in `index.html` already assume that address. Change them if the site is hosted elsewhere.
 
-**Check before step 2:** at the time of writing the repository is **private** and owned by a personal account (`m-albertazzi`). GitHub Pages for a private repository on a personal account needs a paid GitHub plan; on the free plan Pages works only for public repositories. This could not be checked from the build environment (the Pages settings are not readable there). Repository visibility has not been changed. Making it public publishes the source and the ITCILO logo files, so decide that deliberately.
+The repository is public, so its source and the ITCILO logo files are public too.
 
 ## Quality checks that were run
 

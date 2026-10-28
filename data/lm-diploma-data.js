@@ -20,7 +20,7 @@ window.LMD_DATA = {
   meta: {
     calendarYear: 2027,
     lastChecked: "2026-10-28",
-    showReviewFlags: true,
+    showReviewFlags: false,
     siteUrl: "https://m-albertazzi.github.io/LMDiploma/"
   },
 
