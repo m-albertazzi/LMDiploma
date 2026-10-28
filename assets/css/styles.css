@@ -439,9 +439,6 @@ code { font-size: .9em; background: rgba(0,0,0,.06); padding: 0 .3em; }
 .pick .public-status { display: block; font-size: .94rem; color: #6B4A1F; margin-top: 4px; }
 .plan-list .course-notes { font-size: .92rem; }
 .export-help { color: var(--grey); font-size: .92rem; }
-.map-disclosure { margin-top: 28px; border-top: 1px solid var(--line); padding-top: 16px; }
-.map-disclosure > summary { cursor: pointer; color: var(--blue); font-weight: 600; padding: 8px 0; }
-.map-disclosure .map { margin: 20px 0 0; }
 @media (max-width: 999px) { .hero-art { max-width: 400px; justify-self: center; } }
 @media (max-width: 1179px) { html { scroll-padding-top: 80px; } }
 @media print {

@@ -245,6 +245,23 @@
 
     <noscript><p class="noscript">The course explorer needs JavaScript. You can see all courses in the <a href="https://www.itcilo.org/courses?field_topics%5B167%5D=167">ITCILO catalogue</a> or write to <a href="mailto:migration@itcilo.org">migration@itcilo.org</a>.</p></noscript>
 
+    <div class="map" id="map" hidden>
+      <div class="map-art">
+        <picture>
+          <source type="image/webp" srcset="assets/img/hero-640.webp 640w, assets/img/hero-960.webp 960w, assets/img/hero-1280.webp 1280w" sizes="(min-width: 1000px) 640px, 92vw">
+          <img src="assets/img/hero-960.jpg" width="960" height="960" loading="lazy" decoding="async" alt="">
+        </picture>
+        <div class="map-pins" id="map-pins"></div>
+      </div>
+      <div class="map-text">
+        <h3>Pieces of a wider picture</h3>
+        <p>Our courses go beyond one-off learning experiences: each is a piece of a wider picture. Together, they form a connected learning pathway towards the Diploma.</p>
+        <p>Select a ring to explore a course, or browse the full list below.</p>
+        <p class="map-key"><span class="key-ring key-academy"></span>Blue ring: the mandatory Academy</p>
+        <p class="map-key"><span class="key-ring"></span>White ring: courses of your choice</p>
+      </div>
+    </div>
+
     <p class="course-guidance" id="course-guidance" hidden>Some course details are still being confirmed. Check the notices in each course before making arrangements.</p>
 
     <div class="filters" id="filters" hidden aria-describedby="filter-help">
@@ -275,24 +292,7 @@
     <ol class="timetable" id="timetable" aria-label="Eligible courses in date order"></ol>
     <p class="empty" id="empty" hidden>No course matches these filters. Reset the filters to see all <span data-fact="calendarYear">2027</span> courses.</p>
 
-    <details class="map-disclosure" id="map" hidden>
-      <summary>Explore courses through the illustration</summary>
-      <div class="map">
-      <div class="map-art">
-        <picture>
-          <source type="image/webp" srcset="assets/img/hero-640.webp 640w, assets/img/hero-960.webp 960w, assets/img/hero-1280.webp 1280w" sizes="(min-width: 1000px) 640px, 92vw">
-          <img src="assets/img/hero-960.jpg" width="960" height="960" loading="lazy" decoding="async" alt="">
-        </picture>
-        <div class="map-pins" id="map-pins"></div>
-      </div>
-      <div class="map-text">
-        <h3>Find a course in the picture</h3>
-        <p>Each ring marks the detail of the illustration used on a course cover. Select a ring to open that course. The course list above is another way to explore the same courses.</p>
-        <p class="map-key"><span class="key-ring key-academy"></span>Blue ring: the mandatory Academy</p>
-        <p class="map-key"><span class="key-ring"></span>White ring: courses of your choice</p>
-      </div>
-      </div>
-    </details>
+
 
       </div>
 </section>

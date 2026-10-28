@@ -41,7 +41,8 @@ try {
     await page.locator('#timetable .row').last().waitFor();
     ok(await page.locator('#timetable .row').count() === 9, 'all nine courses render');
     ok(await page.locator('#site-nav a[href="#planner"]').count() === 1, 'planner has a navigation link');
-    ok(!await page.locator('#map').getAttribute('open'), 'map begins collapsed');
+    ok(await page.locator('#map').isVisible(), 'interactive illustration is visible without expanding it');
+    ok(await page.evaluate(() => Boolean(document.querySelector('#map').compareDocumentPosition(document.querySelector('#filters')) & Node.DOCUMENT_POSITION_FOLLOWING)), 'illustration precedes filters and course list');
     ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'no horizontal overflow');
     if (viewport.width < 1000) {
       ok(await page.evaluate(() => document.querySelector('.hero-copy').getBoundingClientRect().top < document.querySelector('.hero-art').getBoundingClientRect().top), 'mobile title comes before illustration');
@@ -108,10 +109,11 @@ try {
     await page.emulateMedia({ media: 'screen' });
     await page.evaluate(() => window.dispatchEvent(new Event('afterprint')));
     await page.locator('#planner-clear').click();
-    await page.locator('#map > summary').click();
-    ok(await page.locator('#map .hotspot').count() === 9, 'optional map retains all courses');
-    ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'expanded map has no overflow');
-    await page.locator('#map > summary').click();
+    ok(await page.locator('#map .hotspot').count() === 9, 'visible map retains all courses');
+    ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'visible map has no overflow');
+    await page.locator('#map .hotspot[data-course="skills"]').click();
+    ok(await page.locator('#drawer-title').innerText() === 'Skills dimensions of labour migration and mobility', 'illustration ring opens the matching course');
+    await page.keyboard.press('Escape');
     await axe(page);
     await page.evaluate(() => scrollTo(0, 0));
     await page.screenshot({ path: path.join(artifactDir, `home-${viewport.width}.png`), fullPage: false });

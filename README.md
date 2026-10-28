@@ -52,7 +52,7 @@ Screenshots and memo samples are written to ignored `test-results/`; set `ARTIFA
 
 ## Design and assets
 
-The blue/cream palette, Noto Sans display headings, original illustration and official logos are retained. Body text uses normal width. On mobile the title and introduction precede the illustration. The course list comes first; the interactive illustration remains available in “Explore courses through the illustration.”
+The blue/cream palette, Noto Sans display headings, original illustration and official logos are retained. Body text uses normal width. On mobile the title and introduction precede the illustration. The interactive illustration is visible above the filters and course list. Its accompanying text explains how individual courses connect into a wider Diploma pathway.
 
 Keep official logos unchanged. Course cover paths and descriptions live in the data file; hero images use responsive WebP sources in `index.html`. The flyer is `assets/docs/LM-Diploma-flyer.pdf`. Image credit is `credits.display`.
 
