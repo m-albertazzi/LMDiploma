@@ -448,15 +448,14 @@ window.LMD_DATA = {
     { title: "Courses with no 2027 edition", note: "Protecting the rights of migrants in the labour force, and Reintegration of return migrants and former refugees, appear in the presentation's clusters but not in the 2027 calendar. They are mentioned in a note only." },
     { title: "Application links", note: "Application links are copied from the 'Apply now' buttons on the official course pages. They could not be opened from the build environment, so they are not live-tested. Measuring and analysing, and the climate course, have no link yet." },
     { title: "Course images", note: "Official cover images could not be downloaded from the build environment. Course images are the illustrations from the Diploma presentation (some are small). The digital transformation course has a designed title treatment because no illustration was supplied." },
-    { title: "Artwork credits", note: "The cover illustration and course illustrations need an artist credit. The brand guidelines require credits on images." },
     { title: "Capstone and five-year rules", note: "The supplied material does not say how the capstone is submitted or assessed, or from what date the five years run. The page says so and points to the team." },
     { title: "LinkedIn", note: "The presentation gives the handle @itcilomigration but no address, so it is shown as text, not a link." },
     { title: "Reference website", note: "The suggested reference site (macielte-collab.github.io/online-mier-2026-2027) could not be opened from the build environment. Navigation and interaction ideas come from the brief only." }
   ],
 
   credits: {
-    display: "", // shown in the footer when set, e.g. "Illustration: Name Surname"
-    heroIllustration: "Illustration supplied by the Diploma team; artist credit to be confirmed.",
-    courseImages: "Course illustrations are taken from the Diploma presentation; credits to be confirmed."
+    display: "Images: Samuele Omati", // shown in the footer when set
+    heroIllustration: "Samuele Omati",
+    courseImages: "Samuele Omati"
   }
 };

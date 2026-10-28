@@ -53,7 +53,7 @@ Diploma page: https://www.itcilo.org/diplomas/diploma-labour-migration-experts-a
 | D9 | Courses in clusters without a 2027 edition | Protecting the rights of migrants in the labour force; Reintegration of return migrants and former refugees | Not checked on official pages | Mentioned in a note only |
 | D10 | Fees | n/a | n/a | **Removed from the site at the client's request.** No fee information appears anywhere on the page or in the data file |
 | D11 | Course images | Deck illustrations | Official cover images (e.g. A9720022.png) not downloadable | Deck illustrations used. Digital transformation has a designed placeholder |
-| D12 | Artwork credits | none | Brand guidelines require credits | `credits.display` is empty. Add the artist credit |
+| D12 | Artwork credits | none | Brand guidelines require credits | **Resolved:** footer reads "Images: Samuele Omati" (credit supplied by the client). Confirm the wording if a different form is preferred |
 | D13 | Capstone and five-year rules | Not specified how submission works or when the five years start | n/a | FAQ points to migration@itcilo.org |
 
 Other facts used and where they come from: 300 hours, five years, three electives, Academy mandatory but not necessarily first, no separate Diploma intake, nominations by email (presentation, flyer, docx, Diploma page); address (official course pages); Academy languages and "simultaneous translation for plenary" (Academy page).

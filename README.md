@@ -46,7 +46,7 @@ To add a course for a new year, add an entry to `courses` (the page sorts by sta
 | Logos | `assets/img/itc-logo*.png`, `ilo-logo.png`, `diploma-emblem.png` | Official files. Do not edit, recolour or redraw. |
 | Flyer | `assets/docs/LM-Diploma-flyer.pdf` | Keep the file name, or change `programme.flyer` in the data file and the link in `index.html`. |
 | Social sharing image | `assets/img/og-image.jpg` | 1200 x 630. |
-| Artwork credit | `credits.display` in the data file | Shown in the footer when set. |
+| Image credit | `credits.display` in the data file | Shown in the footer; currently "Images: Samuele Omati". |
 
 ## Branding notes
 
